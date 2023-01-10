@@ -40,7 +40,7 @@ truss.elems = elems;
 truss.BC = [1 1];
 
 % Truss Loadings(Node id, Force in x, Force in y)
-truss.loads = [truss.nbNodes 1000000];
+truss.loads = [truss.nbNodes 10e5];
 
 
 % Truss Materials (Modulus, Surface area)
