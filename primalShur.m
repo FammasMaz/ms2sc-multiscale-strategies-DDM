@@ -1,12 +1,12 @@
-addpath('/base');
+addpath('base/');
 nbSub = 20;
 nblocNodes = 10;
 Sp = sparse(2*nbSub);
 bp = sparse(2*nbSub,1);
 
-reshapeNodes = [1;]
+reshapeNodes = [1;];
 for i = 1:nbSub
-    reshapeNodes = [reshapeNodes; i*nblocNodes+1]
+    reshapeNodes = [reshapeNodes; i*nblocNodes+1];
 end
 
 uord = sparse(length(reshapeNodes),1);

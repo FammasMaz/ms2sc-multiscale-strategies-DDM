@@ -85,7 +85,7 @@ end
 % Decompose f
 fi = Ford(1:truss.iinodes);
 fb = Ford(truss.iinodes+1:end);
-fb = [-100;100]
+fb = [-10e5;10e5];
 
 % Decompose K
 Kii = Kord(1:truss.iinodes,1:truss.iinodes);
