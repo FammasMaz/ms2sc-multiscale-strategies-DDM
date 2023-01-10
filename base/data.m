@@ -1,10 +1,10 @@
 %% Dataset
 
 % Variables
-L = 100;
+L = 100/20;
 
 % Number of subdomains
-truss.nbSub = 20;
+truss.nbSub = 1;
 % Number of nbLocal
 truss.nblocNodes = 10;
 % Number of elements

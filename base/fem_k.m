@@ -1,11 +1,10 @@
-clear all; close all; clc;
-
+function [Sps, bps] = fem_k(base, sol)
 %% Add Paths
 
 addpath("base/");
 %% Initialize Dataset
 
-run('data.m');
+run(base);
 %% Initialize Matrices
 
 DoF = truss.Dim*truss.nbNodes;
@@ -42,45 +41,51 @@ for n = 1:size(truss.loads, 1)
     Ford(ordFnode) = truss.loads(n, 2); % X-Coordinate
 end
 
-%% Method 1
-%---------------------
-% Boundary Conditions
-
-% Thined F and M
-bcremOrd = zeros(DoF, 1);
-for n = 1:size(truss.BC, 1)
-  bcnode = truss.BC(n,1);
-  ordBCnode = find(truss.ordNodesids==bcnode);
-  bcremOrd(ordBCnode) = truss.BC(n,2);
-end
-rmKord = Kord(~bcremOrd,~bcremOrd); % Removing the corresponding rows and columns of bcrem
-newFord = Ford(~bcremOrd); % Removing the corresponding rows of bcrem
-% New U as Matrix Solution to [K]{u} = {F}
-Uord = rmKord\newFord;
-
-% Rentering the previosuly removed nodal data, ordered
-j = 1;
-for i = 1:size(uord, 1)
-  if bcremOrd(i) == 1
-    uord(i) = 0; % 0 strain because of fixed support
-  else
-    uord(i) = Uord(j); % value from U as no fixed support
-    j = j+1;
-  end
-end
-for i=1:DoF
-    uxyOrd(i,1) = uord(i);
+if sol==1
+    %% Method 1
+    %---------------------
+    % Boundary Conditions
+    
+    % Thined F and M
+    bcremOrd = zeros(DoF, 1);
+    for n = 1:size(truss.BC, 1)
+      bcnode = truss.BC(n,1);
+      ordBCnode = find(truss.ordNodesids==bcnode);
+      bcremOrd(ordBCnode) = truss.BC(n,2);
+    end
+    rmKord = Kord(~bcremOrd,~bcremOrd); % Removing the corresponding rows and columns of bcrem
+    newFord = Ford(~bcremOrd); % Removing the corresponding rows of bcrem
+    % New U as Matrix Solution to [K]{u} = {F}
+    Uord = rmKord\newFord;
+    
+    % Rentering the previosuly removed nodal data, ordered
+    j = 1;
+    for i = 1:size(uord, 1)
+      if bcremOrd(i) == 1
+        uord(i) = 0; % 0 strain because of fixed support
+      else
+        uord(i) = Uord(j); % value from U as no fixed support
+        j = j+1;
+      end
+    end
+    for i=1:DoF
+        uxyOrd(i,1) = uord(i);
+    end
+    
+    % Decompose u
+    ui = uxyOrd(1:truss.iinodes);
+    ub = uxyOrd(truss.iinodes+1, end);
+    
+    %% Plot the Deformed Formed
+    plottinOrd(uxyOrd) % Plot with Reordering
 end
 
 %% Decomposing Matrices
 
-% Decompose u
-ui = uxyOrd(1:truss.iinodes);
-ub = uxyOrd(truss.iinodes+1, end);
-
 % Decompose f
 fi = Ford(1:truss.iinodes);
-fb = Ford(truss.iinodes+1, end);
+fb = Ford(truss.iinodes+1:end);
+fb = [-100;100]
 
 % Decompose K
 Kii = Kord(1:truss.iinodes,1:truss.iinodes);
@@ -91,6 +96,4 @@ Kbb = Kord(truss.iinodes+1:end, truss.iinodes+1:end);
 %% Calculating maps
 Sps = Kbb - (Kbi*(Kii\Kib));
 bps = fb - (Kbi*(Kii\fi));
-%% Plot the Deformed Formed
-
-plottinOrd(uxyOrd) % Plot with Reordering
+end
