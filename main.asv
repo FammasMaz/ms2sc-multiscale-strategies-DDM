@@ -80,7 +80,7 @@ ub = uxyOrd(truss.iinodes+1, end);
 
 % Decompose f
 fi = Ford(1:truss.iinodes);
-fb = Ford(truss.iinodes+1:end);
+fb = Ford(truss.iinodes+1, end);
 
 % Decompose K
 Kii = Kord(1:truss.iinodes,1:truss.iinodes);

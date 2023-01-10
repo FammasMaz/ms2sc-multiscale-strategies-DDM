@@ -53,4 +53,5 @@ for i = 1:truss.nbSub
 end
 
 iinodes = setdiff(truss.nodesids,truss.reshapeNodes);
+truss.iinodes = length(iinodes);
 truss.ordNodesids = [iinodes; truss.reshapeNodes];
