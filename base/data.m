@@ -1,12 +1,12 @@
 %% Dataset
 
 % Variables
-L = 100/20;
-
+L = 100;
+truss.L = L;
 % Number of subdomains
 truss.nbSub = 1;
 % Number of nbLocal
-truss.nblocNodes = 10;
+truss.nblocNodes = 20*10;
 % Number of elements
 truss.nbElems = truss.nbSub*truss.nblocNodes;
 
@@ -15,7 +15,7 @@ truss.nbNodes = truss.nbElems+1;
 
 % Size of each Element
 h = L/truss.nbElems;
-
+truss.h = h;
 % Coordinates of the nodes (Position x, Position y)
 % Each row is a separate Node
 

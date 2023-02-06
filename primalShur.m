@@ -1,9 +1,12 @@
+clear all; close all; clc;
+
 addpath('base/');
+
+run("data.m")
 nbSub = 20;
 nblocNodes = 10;
 Sp = sparse(2*nbSub);
 bp = sparse(2*nbSub,1);
-
 reshapeNodes = [1;];
 for i = 1:nbSub
     reshapeNodes = [reshapeNodes; i*nblocNodes+1];
@@ -12,16 +15,19 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
+
 for i=1:nbSub
-    [Sps, bps] = fem_k('data.m', 0);
+    [Sps, bps] = fem_k(truss, 0);
     Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
     bp(2*i-1:2*i) = bps;
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
 
 end
+
 bp(1,1) = 0;
 S = A*Sp*A';
 b = A*bp;
+
 
 truss.BC = [1 1];
 bcremOrd = zeros(length(b), 1);

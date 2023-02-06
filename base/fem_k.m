@@ -1,10 +1,9 @@
-function [Sps, bps] = fem_k(base, sol)
+function [Sps, bps] = fem_k(truss, sol)
 %% Add Paths
 
 addpath("base/");
 %% Initialize Dataset
 
-run(base);
 %% Initialize Matrices
 
 DoF = truss.Dim*truss.nbNodes;
@@ -77,7 +76,7 @@ if sol==1
     ub = uxyOrd(truss.iinodes+1, end);
     
     %% Plot the Deformed Formed
-    plottinOrd(uxyOrd) % Plot with Reordering
+    plottinOrd(uxyOrd); % Plot with Reordering
 end
 
 %% Decomposing Matrices
