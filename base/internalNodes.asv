@@ -1,0 +1,13 @@
+function(uii) = internalNodes(truss, reshapeNodes Sp, bp, nbSub)
+
+
+for i=1:truss.nbSub
+    [~, Kii, Kib, fi] = fem_k(truss, 0);
+    Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
+    bp(2*i-1:2*i) = bps;
+    us(2*i-1:2*i) = Sps\bps;
+    A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
+end
+
+Kii, Kib, fi
+
