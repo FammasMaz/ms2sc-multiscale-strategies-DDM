@@ -56,24 +56,9 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-[uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
+[uii, u] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
 
+plot(u)
 
-% Rebuilding Truss
-truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
-truss.nbNodes = length(truss.nodes);
-truss.nbElems = truss.nbElems*truss.nbSub;
-elems = [];
-for i = 1:truss.nbElems
-    elems = [elems; i i+1 1];
-end
-truss.elems = elems;
-
-%Plotting
-figure
-plot(uif, 'go')
-hold on;
-plot(unf, 'rx')
-hold off;
-plottin(truss, u)
+plottin(uxyOrd)
 
