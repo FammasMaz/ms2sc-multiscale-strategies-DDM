@@ -41,7 +41,7 @@ newFord = b(~bcremOrd); % Removing the corresponding rows of bcrem
 % New U as Matrix Solution to [K]{u} = {F}
 %% Conjugate Gradient method
 x0 = sparse(length(newFord),1);
-[Uord, iter] = conjGradFunc(rmKord, newFord, x0, 1e-5);
+[Uord, iter, ~] = conjGradFunc(rmKord, newFord, x0,200, 1e-5);
 
 ub = Uord;
 % Rentering the previosuly removed nodal data, ordered
@@ -72,9 +72,9 @@ truss.elems = elems;
 
 %Plotting
 figure
-plot(uif, 'go', label = 'Internal Nodes')
+plot(uif(uif~=0), 'go')
 hold on;
-plot(unf, 'rx', label = 'Boundary Nodes')
-legend();
+plot(unf(unf~=0), 'rx')
+legend('Internal Nodes','Boundary Nodes');
 hold off;
 plottin(truss, u)

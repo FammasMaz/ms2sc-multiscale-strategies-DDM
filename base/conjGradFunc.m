@@ -1,22 +1,23 @@
-function [sol, k] = conjGradFunc(A,b,x_0,tol);
-
-
-    residus = - A * x_0 + b;
-    p =  residus;
-    k = 0;
-    x = x_0;
-    n = length(x_0);
-    double_residus = residus'* residus;
-    while norm(residus) > tol
-        Ap  = A * p;
-        alpha = double_residus / (p' * Ap);
-        x = x + alpha * p;
-        residus = residus - alpha * Ap;
-        double_residus_act = residus'* residus;
-        beta = double_residus_act / double_residus;
-        double_residus = double_residus_act;
-        p = residus + beta * p;
-        k = k + 1;
+function [x, n_iter, error] = conjGradFunc(A, b, x0, m, er_max)
+    % Conjugate Gradient algorithm
+    w = zeros(size(A, 1), m+1);
+    p = zeros(size(A, 1), m+1);
+    alpha = zeros(1, m+1);
+    r = zeros(size(A, 1), m+1);
+    r(:, 1) = -A*x0 + b;
+    w(:, 1) = r(:, 1);
+    for j = 2:m+1
+        p(:, j-1) = A*w(:, j-1);
+        alpha(j-1) = r(:, j-1).' * r(:, j-1) / (p(:, j-1).' * r(:, j-1));
+        x0 = x0 + alpha(j-1)*w(:, j-1);
+        r(:, j) = r(:, j-1) - alpha(j-1)*p(:, j-1);
+        error = norm(r(:, j));
+        beta = r(:, j).' * r(:, j) / (r(:, j-1).' * r(:, j-1));
+        w(:, j) = r(:, j) + beta*w(:, j-1);
+        if error < er_max
+            break;
+        end
     end
-    sol = x;
+    x = x0;
+    n_iter = j-1;
 end

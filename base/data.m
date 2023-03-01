@@ -2,7 +2,7 @@
 % Variables
 
 % Number of subdomains
-truss.nbSub = 20;
+truss.nbSub = 30;
 % Length
 L = 100/truss.nbSub;
 truss.L = L;

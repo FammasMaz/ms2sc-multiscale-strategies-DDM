@@ -82,10 +82,11 @@ truss.elems = elems;
 
 %Plotting
 figure
-plot(uif, 'go', label = 'Internal Nodes')
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
 hold on;
-plot(unf, 'rx', label = 'Boundary Nodes')
-legend();
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes');
 hold off;
 plottin(truss, u)
-
