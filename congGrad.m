@@ -18,6 +18,8 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
+rb = zeros(2*truss.nbSub,1);
+R0 = zeros(truss.nbSub,1);
 
 for i=1:nbSub
     [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
@@ -56,9 +58,24 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-[uii, u] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
+[uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
 
-plot(u)
 
-plottin(uxyOrd)
+% Rebuilding Truss
+truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
+truss.nbNodes = length(truss.nodes);
+truss.nbElems = truss.nbElems*truss.nbSub;
+elems = [];
+for i = 1:truss.nbElems
+    elems = [elems; i i+1 1];
+end
+truss.elems = elems;
+
+%Plotting
+figure
+plot(uif, 'go')
+hold on;
+plot(unf, 'rx')
+hold off;
+plottin(truss, u)
 
