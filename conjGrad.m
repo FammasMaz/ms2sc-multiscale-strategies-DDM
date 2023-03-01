@@ -1,20 +1,11 @@
 clear all; close all; clc;
 
-% Notations
-% Sps = subdomain S
-% Sp = concatenated S
-% S = Global S
-% size of ub=S=b (ub has one less size because the first is 0 and we are
-% using sparse)
-
-% size of us =Sp=bp
-
 addpath('base/');
 
 run("data.m")
 nbSub = truss.nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
-nblocNodes = 10;
+nblocNodes = truss.nblocNodes;
 Sp = sparse(2*nbSub);
 bp = sparse(2*nbSub,1);
 
@@ -26,21 +17,17 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
-
 for i=1:nbSub
     [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
     if i==1
         bps(1) = 0;
     end
-    Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
-    bp(2*i-1:2*i) = bps;
-    us(2*i-1:2*i) = Sps\bps;
+    Sp(2*i-1:2*i,2*i-1:2*i) = Sps; % Subdomain level
+    bp(2*i-1:2*i) = bps; % Subdomain level
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
 end
-
-%bp(1,1) = 0;
-S = A*Sp*A';
-b = A*bp;
+S = A*Sp*A'; % Overall
+b = A*bp; % Overall
 
 truss.BC = [1 1];
 bcremOrd = zeros(length(b), 1);
@@ -52,7 +39,10 @@ end
 rmKord = S(~bcremOrd,~bcremOrd); % Removing the corresponding rows and columns of bcrem
 newFord = b(~bcremOrd); % Removing the corresponding rows of bcrem
 % New U as Matrix Solution to [K]{u} = {F}
-Uord = rmKord\newFord;
+%% Conjugate Gradient method
+x0 = sparse(length(newFord),1);
+[Uord, iter] = conjGradFunc(rmKord, newFord, x0, 1e-5);
+
 ub = Uord;
 % Rentering the previosuly removed nodal data, ordered
 j = 1;
@@ -88,4 +78,3 @@ plot(unf, 'rx', label = 'Boundary Nodes')
 legend();
 hold off;
 plottin(truss, u)
-

@@ -1,18 +1,10 @@
 clear all; close all; clc;
 
-% Notations
-% Sps = subdomain S
-% Sp = concatenated S
-% S = Global S
-% size of ub=S=b (ub has one less size because the first is 0 and we are
-% using sparse)
-
-% size of us =Sp=bp
-
 addpath('base/');
 
 run("data.m")
-nbSub = truss.nbSub;
+nbSub = 20;
+truss.nbSub = nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
 nblocNodes = 10;
 Sp = sparse(2*nbSub);
@@ -26,21 +18,28 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
-
+rbg = zeros(2*truss.nbSub,1);
+R0 = zeros(truss.nbSub,1);
+Ubgs = sparse(length(reshapeNodes),1);
 for i=1:nbSub
+    ubgs = Ubgs(i:i+1);
     [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
     if i==1
         bps(1) = 0;
     end
-    Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
-    bp(2*i-1:2*i) = bps;
-    us(2*i-1:2*i) = Sps\bps;
+    rbgs = bps - Sps*ubgs;
+    Rs = sum(rbgs);
+    R0(i) = Rs;
+    rbg(2*i-1:2*i) = rbgs;
+    Sp(2*i-1:2*i,2*i-1:2*i) = Sps; % Subdomain level
+    bp(2*i-1:2*i) = bps; % Subdomain level
+    us(2*i-1:2*i) = Sps\bps; % Subdomain level
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
 end
-
+d0 = R0;
 %bp(1,1) = 0;
-S = A*Sp*A';
-b = A*bp;
+S = A*Sp*A'; % Overall
+b = A*bp; % Overall
 
 truss.BC = [1 1];
 bcremOrd = zeros(length(b), 1);
@@ -67,7 +66,18 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-[uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
+
+Sr = rmKord;
+br = newFord;
+xg = Ubgs(2:end);
+%% Loop
+% 
+% alpha = R0'*R0/(d0'*Sr*d0);
+% xg  = xg + alpha*d0;
+% R01 = R0 - alpha*Sr*d0;
+% for j = 1:1
+%     beta = -R01'*Sr*d0
+% [uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
 
 
 % Rebuilding Truss
@@ -82,10 +92,9 @@ truss.elems = elems;
 
 %Plotting
 figure
-plot(uif, 'go', label = 'Internal Nodes')
+plot(uif, 'go')
 hold on;
-plot(unf, 'rx', label = 'Boundary Nodes')
-legend();
+plot(unf, 'rx')
 hold off;
 plottin(truss, u)
 

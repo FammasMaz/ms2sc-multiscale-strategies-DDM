@@ -1,10 +1,18 @@
 clear all; close all; clc;
 
+% Notations
+% Sps = subdomain S
+% Sp = concatenated S
+% S = Global S
+% size of ub=S=b (ub has one less size because the first is 0 and we are
+% using sparse)
+
+% size of us =Sp=bp
+
 addpath('base/');
 
 run("data.m")
-nbSub = 20;
-truss.nbSub = nbSub;
+nbSub = truss.nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
 nblocNodes = 10;
 Sp = sparse(2*nbSub);
@@ -18,18 +26,19 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
-rb = zeros(2*truss.nbSub,1);
-R0 = zeros(truss.nbSub,1);
 
 for i=1:nbSub
     [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
+    if i==1
+        bps(1) = 0;
+    end
     Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
     bp(2*i-1:2*i) = bps;
     us(2*i-1:2*i) = Sps\bps;
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
 end
 
-bp(1,1) = 0;
+%bp(1,1) = 0;
 S = A*Sp*A';
 b = A*bp;
 
@@ -73,9 +82,9 @@ truss.elems = elems;
 
 %Plotting
 figure
-plot(uif, 'go')
+plot(uif, 'go', label = 'Internal Nodes')
 hold on;
-plot(unf, 'rx')
+plot(unf, 'rx', labe)
 hold off;
 plottin(truss, u)
 
