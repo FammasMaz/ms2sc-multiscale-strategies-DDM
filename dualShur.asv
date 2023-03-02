@@ -22,23 +22,64 @@ reshapeNodes = [1;];
 for i = 1:nbSub
     reshapeNodes = [reshapeNodes; i*nblocNodes+1];
 end
-
 uord = sparse(length(reshapeNodes),1);
-A = sparse(size(reshapeNodes,1), 2*nbSub);
-ae = [1 0;0 1];
-
+ae = [-1 0;0 1];
+%ae = [1 0; 0 1];
+R_c = [];
+A = sparse(size(reshapeNodes,1), 2*(nbSub));
+Fd = 10e5;
 for i=1:nbSub
-    [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
-    if i==1
-        bps(1) = 0;
+    [Sps, bps, ~, ~, ~] = fem_k_dual(truss, 0);
+    Sps = sparse(pinv(full(Sps)));
+
+    rig = null(full(Sps),'r');
+
+    if i==nbSub
+        Sps = [0 0; 0 0];
+        rig = [1];
+    elseif i==1
+        rig = null(5000);
     end
+    R_c = blkdiag(R_c, rig);
     Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
     bp(2*i-1:2*i) = bps;
-    us(2*i-1:2*i) = Sps\bps;
-    A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
+    A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;    
+
 end
 
-%bp(1,1) = 0;
+A(:,1) = [];
+A(1,:) = [];
+A(end, :) = [];
+A(:, end) = [];
+
+
+bp(2*nbSub, 1) = Fd;
+
+
+bcremOrd = zeros(length(bp), 1);
+for n = 1:size(truss.BCD, 1)
+  bcnode = truss.BCD(n,1);
+  bcremOrd(bcnode) = truss.BCD(n,2);
+end
+
+Sp = Sp(~bcremOrd,~bcremOrd);
+Sp(1,1) = Sp(1,1)*4
+bp = bp(~bcremOrd);
+bd = Sp*bp;
+b = A*bd;
+G = A*R_c;
+e = R_c'*bp;
+S = A*Sp*A';
+lhd = [S G;G' zeros(size(G))];
+rhd = [-b;-e];
+sol = lhd\rhd;
+lambda = sol(1:size(S,2));
+alpha = sol(size(S,2)+1:end);
+lambda_c = A'*lambda;
+ub = Sp*(bd+lambda_c) + R_c*alpha;
+
+
+%%
 S = A*Sp*A';
 b = A*bp;
 
@@ -90,5 +131,3 @@ plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
 legend('Internal Nodes','Boundary Nodes');
 hold off;
 plottin(truss, u)
-
-Sp

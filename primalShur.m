@@ -15,7 +15,7 @@ run("data.m")
 nbSub = truss.nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
 nblocNodes = 10;
-Sp = sparse(2*nbSub);
+Sp = sparse(2*nbSub, 2*nbSub);
 bp = sparse(2*nbSub,1);
 
 reshapeNodes = [1;];
@@ -90,3 +90,5 @@ plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
 legend('Internal Nodes','Boundary Nodes');
 hold off;
 plottin(truss, u)
+
+Sp

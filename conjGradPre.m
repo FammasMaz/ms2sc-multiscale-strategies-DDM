@@ -3,10 +3,9 @@ clear all; close all; clc;
 addpath('base/');
 
 run("data.m")
-nbSub = 20;
-truss.nbSub = nbSub;
+nbSub = truss.nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
-nblocNodes = 10;
+nblocNodes = truss.nblocNodes;
 Sp = sparse(2*nbSub);
 bp = sparse(2*nbSub,1);
 
@@ -18,26 +17,19 @@ end
 uord = sparse(length(reshapeNodes),1);
 A = sparse(size(reshapeNodes,1), 2*nbSub);
 ae = [1 0;0 1];
-rbg = zeros(2*truss.nbSub,1);
-R0 = zeros(truss.nbSub,1);
-Ubgs = sparse(length(reshapeNodes),1);
 for i=1:nbSub
-    ubgs = Ubgs(i:i+1);
     [Sps, bps, ~, ~, ~] = fem_k(truss, 0);
     if i==1
         bps(1) = 0;
     end
-    rbgs = bps - Sps*ubgs;
-    Rs = sum(rbgs);
-    R0(i) = Rs;
-    rbg(2*i-1:2*i) = rbgs;
     Sp(2*i-1:2*i,2*i-1:2*i) = Sps; % Subdomain level
     bp(2*i-1:2*i) = bps; % Subdomain level
-    us(2*i-1:2*i) = Sps\bps; % Subdomain level
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;
 end
-d0 = R0;
-%bp(1,1) = 0;
+M = 0.5*eye(size(A,2));
+Atil = (A*M*A')\(A*M);
+Cond = Atil*pinv(full(Sp))*Atil';
+Cond = sparse(Cond);
 S = A*Sp*A'; % Overall
 b = A*bp; % Overall
 
@@ -48,10 +40,14 @@ for n = 1:size(truss.BC, 1)
   bcremOrd(bcnode) = truss.BC(n,2);
 end
 
-rmKord = S(~bcremOrd,~bcremOrd); % Removing the corresponding rows and columns of bcrem
+rmKord = S(~bcremOrd,~bcremOrd);
+rmCond = Cond(~bcremOrd,~bcremOrd);% Removing the corresponding rows and columns of bcrem
 newFord = b(~bcremOrd); % Removing the corresponding rows of bcrem
 % New U as Matrix Solution to [K]{u} = {F}
-Uord = rmKord\newFord;
+%% Conjugate Gradient method
+x0 = sparse(length(newFord),1);
+[Uord, error, iter] = conjGradPreFunc(rmKord, newFord, 200,x0, 1e-11, rmCond); %A, b, m, er_max, choice
+
 ub = Uord;
 % Rentering the previosuly removed nodal data, ordered
 j = 1;
@@ -66,18 +62,7 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-
-Sr = rmKord;
-br = newFord;
-xg = Ubgs(2:end);
-%% Loop
-% 
-% alpha = R0'*R0/(d0'*Sr*d0);
-% xg  = xg + alpha*d0;
-% R01 = R0 - alpha*Sr*d0;
-% for j = 1:1
-%     beta = -R01'*Sr*d0
-% [uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
+[uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
 
 
 % Rebuilding Truss
@@ -92,9 +77,11 @@ truss.elems = elems;
 
 %Plotting
 figure
-plot(uif, 'go')
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
 hold on;
-plot(unf, 'rx')
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes');
 hold off;
 plottin(truss, u)
-

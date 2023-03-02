@@ -1,4 +1,4 @@
-function [Sps, bps, Kii, Kib, fi] = fem_k(truss, sol)
+function [Sps, bps, Kii, Kib, fi, ke, Fd] = fem_k_dual(truss, sol)
 %% Add Paths
 
 addpath("base/");
@@ -94,4 +94,5 @@ Kbb = Kord(truss.iinodes+1:end, truss.iinodes+1:end);
 %% Calculating maps
 Sps = Kbb - (Kbi*(Kii\Kib));
 bps = fb - (Kbi*(Kii\fi));
+bps = [0;0];
 end

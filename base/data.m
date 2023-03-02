@@ -2,7 +2,8 @@
 % Variables
 
 % Number of subdomains
-truss.nbSub = 30;
+
+truss.nbSub = 20;
 % Length
 L = 100/truss.nbSub;
 truss.L = L;
@@ -39,6 +40,10 @@ truss.elems = elems;
 % 1 = fixed, 0 = free
 % Each row is a separate element
 truss.BC = [1 1];
+load_nodes = 2*truss.nbSub-1;
+truss.BCD = [1 1
+            load_nodes 1];
+
 
 % Truss Loadings(Node id, Force in x, Force in y)
 truss.loads = [truss.nbNodes 10e5];
@@ -56,3 +61,6 @@ end
 iinodes = setdiff(truss.nodesids,truss.reshapeNodes);
 truss.iinodes = length(iinodes);
 truss.ordNodesids = [iinodes; truss.reshapeNodes];
+
+
+ke = 2.1e11*10e-6/truss.h;
