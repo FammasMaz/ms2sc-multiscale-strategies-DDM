@@ -1,4 +1,3 @@
-%% Dataset
 % Variables
 
 % Number of subdomains
@@ -53,9 +52,9 @@ truss.loads = [truss.nbNodes 10e5];
 % (Each row is a separate material)
 truss.mat = [2.1e11 10e-6];
 
-truss.reshapeNodes = [1;]
+truss.reshapeNodes = [1;];
 for i = 1:truss.nbSub
-    truss.reshapeNodes = [truss.reshapeNodes; i*truss.nblocNodes+1]
+    truss.reshapeNodes = [truss.reshapeNodes; i*truss.nblocNodes+1];
 end
 
 iinodes = setdiff(truss.nodesids,truss.reshapeNodes);

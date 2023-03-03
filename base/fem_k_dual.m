@@ -1,4 +1,4 @@
-function [Sps, bps, Kii, Kib, fi, ke, Fd] = fem_k_dual(truss, sol)
+function [Sps, bps, Kii, Kib, fi, ke, Fd] = fem_k_dual(truss, sol, Sp_gen)
 %% Add Paths
 
 addpath("base/");
@@ -92,7 +92,12 @@ Kbi = Kord(truss.iinodes+1:end, 1:truss.iinodes);
 Kbb = Kord(truss.iinodes+1:end, truss.iinodes+1:end);
 
 %% Calculating maps
-Sps = Kbb - (Kbi*(Kii\Kib));
+if Sp_gen==1
+    Sps = Kbb - (Kbi*(Kii\Kib));
+else
+    Sps = sparse(pinv(full(Kbb - (Kbi*(Kii\Kib)))));
+end
 bps = fb - (Kbi*(Kii\fi));
 bps = [0;0];
+
 end

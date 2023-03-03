@@ -1,7 +1,7 @@
 clear all; close all; clc;
 
 % Generating Primal or Dual? Sp_gen = 1 for Primal, 0 for Dual
-Sp_gen = 0;
+Sp_gen = 1;
 % Notations
 % Sps = subdomain S
 % Sp = concatenated S
@@ -13,11 +13,8 @@ Sp_gen = 0;
 
 addpath('base/');
 
-run("data.m");
-nbSub = truss.nbSub;
+run('data.m');
 truss.DOF = (truss.nbSub*(truss.nbNodes-1))+1;
-nblocNodes = truss.nblocNodes;
-
 
 Fd = 10e5;
 
@@ -28,23 +25,9 @@ Abar = A_gen(truss.reshapeNodes, truss.nbSub, Sp_gen);
 [R_c, bp, Sp] = RS_gen(truss, Fd, Sp_gen);
 
 
-% b dual
-bd = Sp*bp;
+% Sp Assembled
+S = A*Sp*A';
+b = A*bp;
 
-% Assembled b
-b = Abar*bd;
-
-G = Abar*R_c;
-
-e = R_c'*bp;
-
-% Assembled Sp
-S = Abar*Sp*Abar';
-lhd = [S G;G' zeros(size(G))];
-rhd = [-b;-e];
-sol = lhd\rhd;
-lambda = sol(1:size(S,2));
-alpha = sol(size(S,2)+1:end);
-lambda_c = Abar'*lambda;
-ub = Sp*(bd+lambda_c) + R_c*alpha;
-ub = ub(2:2:end); % Removing the repeating elements
+ub = S\b
+u = A'*ub;

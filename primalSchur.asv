@@ -1,7 +1,7 @@
 clear all; close all; clc;
 
 % Generating Primal or Dual? Sp_gen = 1 for Primal, 0 for Dual
-Sp_gen = 0;
+Sp_gen = 1;
 % Notations
 % Sps = subdomain S
 % Sp = concatenated S
@@ -13,23 +13,24 @@ Sp_gen = 0;
 
 addpath('base/');
 
-run("data.m");
+run("data.m")
 nbSub = truss.nbSub;
-truss.DOF = (truss.nbSub*(truss.nbNodes-1))+1;
+truss.DOF = (nbSub*(truss.nbNodes-1))+1;
 nblocNodes = truss.nblocNodes;
 
 
 Fd = 10e5;
 
 % Generate A and A_bar
-A = A_gen(truss.reshapeNodes, truss.nbSub, 1);
-Abar = A_gen(truss.reshapeNodes, truss.nbSub, Sp_gen);
+A = A_gen(truss.reshapeNodes, nbSub, 1);
+Abar = A_gen(truss.reshapeNodes, nbSub, Sp_gen);
 
-[R_c, bp, Sp] = RS_gen(truss, Fd, Sp_gen);
+[R_c, bp, Sp] = RS_gen(nbSub, truss, Fd, Sp_gen);
 
 
-% b dual
-bd = Sp*bp;
+% Sp Assembled
+S = A*Sp*A';
+b = A*bp;
 
 % Assembled b
 b = Abar*bd;
