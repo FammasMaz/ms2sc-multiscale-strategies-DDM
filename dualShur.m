@@ -77,7 +77,7 @@ lambda = sol(1:size(S,2));
 alpha = sol(size(S,2)+1:end);
 lambda_c = A'*lambda;
 ub = Sp*(bd+lambda_c) + R_c*alpha;
-ub = sparse(ub(2:2:end)
+ub = sparse(ub(2:2:end));
 
 
 %%

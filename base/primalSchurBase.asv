@@ -16,6 +16,8 @@ nbSub = truss.nbSub;
 truss.DOF = (nbSub*(truss.nbNodes-1))+1;
 nblocNodes = 10;
 Sp = sparse(2*nbSub, 2*nbSub);
+Sdp = sparse(2*nbSub, 2*nbSub);
+
 bp = sparse(2*nbSub,1);
 
 reshapeNodes = [1;];
@@ -23,25 +25,28 @@ for i = 1:nbSub
     reshapeNodes = [reshapeNodes; i*nblocNodes+1];
 end
 uord = sparse(length(reshapeNodes),1);
-ae = [-1 0;0 1];
-%ae = [1 0; 0 1];
+
+ae = [1 0; 0 1];
+abare = []
 R_c = [];
 A = sparse(size(reshapeNodes,1), 2*(nbSub));
 Fd = 10e5;
 for i=1:nbSub
     [Sps, bps, ~, ~, ~] = fem_k_dual(truss, 0);
-    Sps = sparse(pinv(full(Sps)));
+    Spd = sparse(pinv(full(Sps)));
 
     rig = null(full(Sps),'r');
 
     if i==nbSub
         Sps = [0 0; 0 0];
+        Spd = [0 0; 0 0];
         rig = [1];
     elseif i==1
         rig = null(5000);
     end
     R_c = blkdiag(R_c, rig);
     Sp(2*i-1:2*i,2*i-1:2*i) = Sps;
+    Sdp(2*i-1:2*i,2*i-1:2*i) = Spd;
     bp(2*i-1:2*i) = bps;
     A(i:i+1,2*i-1:2*i) = A(i:i+1,2*i-1:2*i) + ae;    
 
@@ -63,13 +68,19 @@ for n = 1:size(truss.BCD, 1)
 end
 
 Sp = Sp(~bcremOrd,~bcremOrd);
-Sp(1,1) = Sp(1,1)*4
+Sdp = Sdp(~bcremOrd,~bcremOrd);
+Sp(1,1) = Sp(1,1)*4;
+Sdp(1,1) = Sdp(1,1)*4;
+
 bp = bp(~bcremOrd);
 bd = Sp*bp;
+
 b = A*bd;
 G = A*R_c;
 e = R_c'*bp;
 S = A*Sp*A';
+Sd = A*Sdp*A'
+%%
 lhd = [S G;G' zeros(size(G))];
 rhd = [-b;-e];
 sol = lhd\rhd;
@@ -77,6 +88,7 @@ lambda = sol(1:size(S,2));
 alpha = sol(size(S,2)+1:end);
 lambda_c = A'*lambda;
 ub = Sp*(bd+lambda_c) + R_c*alpha;
+ub = sparse(ub(2:2:end));
 
 
 %%
