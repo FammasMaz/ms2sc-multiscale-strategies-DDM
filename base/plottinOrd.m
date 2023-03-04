@@ -1,5 +1,4 @@
-function plottinOrd(uxyOrd)
-    run('data.m');
+function plottinOrd(truss, uxyOrd)
     nElems = truss.nbElems;
     nNodes = truss.nbNodes;
     
@@ -18,12 +17,12 @@ function plottinOrd(uxyOrd)
     
     % Plotting both the matrices
     figure
-    gplot(adjacOrd, [truss.nodes zeros(size(uxyOrd,1),1)], "r--");
+    gplot(adjacOrd, [truss.nodes zeros(size(uxyOrd,1),1)], "r");
     hold on;
     gplot(adjacOrd, dXYOrd, "b");
     ylim([-0.4 0.8]);
     title('Displacement with Reordering');
-    xlabel('Displacement (mm)');
+    xlabel('Displacement (m)');
     legend('Original','Displaced');
     hold off;
 end

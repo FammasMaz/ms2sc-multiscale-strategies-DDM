@@ -1,13 +1,13 @@
-% Variables
+d% Variables
 
 % Number of subdomains
 
-truss.nbSub = 3;
+truss.nbSub = 1;
 % Length
-L = 100/truss.nbSub;
+L = 100/truss.nbSub; % Size of each sub domain
 truss.L = L;
 % Number of nbLocal
-truss.nblocNodes = 2;
+truss.nblocNodes = 10;
 % Number of elements
 truss.nbElems = truss.nblocNodes;
 
