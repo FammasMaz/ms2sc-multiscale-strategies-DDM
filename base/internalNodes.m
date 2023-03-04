@@ -14,17 +14,16 @@ for i=1:truss.nbSub-1
     uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i+1));];
 end
 
-
-for i=truss.nbSub-1:truss.nbSub
-    [~, ~, Kii, Kib, fi] = fem_k(truss, 0, 1);
-    uil = Kii\(fi - (Kib)*ub(i:i));
-    ui = [ui; uil];
-    u = [u; ub(i); Kii\(fi - (Kib)*ub(i:i));];
-    unf = [unf; ub(i); zeros(length(uil),1)];
-    uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i));];
-end
-u
 u = [u; ub(end)];
-unf = [unf; ub(end)];
-uif = [uif; 0];
+
+
+% Last subdomain
+[~, ~, Kii, Kib, fi] = fem_k(truss, 0, 1);
+uie = Kii\(fi - (Kib)*ub(end));
+uife = [0; Kii\(fi - (Kib)*ub(end))];
+unf = [unf; ub(truss.nbSub)];
+u = [u; uie];
+uif = [uif; uife(1:end-1)];
+
+
 end

@@ -30,7 +30,9 @@ S = A*Sp*A';
 b = A*bp;
 
 ub = S\b;
-[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub);
+ub_aug = [0;ub];
+
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
 
 % Rebuilding Truss
 truss.nodes = [0:truss.h:truss.L*truss.nbSub]';

@@ -21,7 +21,6 @@ if last == 1
     ins = find(ordNodesids == truss.nblocNodes);
     ordNodesids = [ordNodesids(1:ins); truss.nblocNodes+1; ordNodesids(ins+1:end)];
 end
-ordNodesids
 
 for i=1:truss.nbElems
     ids = truss.elems(i, (1:end-1)); % Node IDs
