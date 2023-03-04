@@ -6,7 +6,7 @@ clear all; close all; clc;
 % Variables
 run('data.m'); % Generates truss mesh
 Sp_gen = 1;
-iter = 2;
+iter = 3;
 Fd = 10e5; % Force on the end node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -45,21 +45,19 @@ u(:, 1) = G*Gb*bp;
 r(:, 1) = P'*bp;
 z(:, 1) = Spinv*r(:, 1);
 d(:, 1) = z(:, 1);
-if norm(full(r))< 10e-4
-
-for i=1:iter
-    p(:, i) = P'*Sp*d(:, i); 
-    alpha(:, i) = r(:, i)'*d(:, i)/(d(:, i)'*p(:, i));
-    u(:, i+1) = u(:, i) + alpha(:, i).*d(:,i);
-    r(:,i+1) = r(:,i) - alpha(:, i).*p(:,i);
-    z(:,i+1) = Spinv*r(:,i+1);
-    beta = 0;
-    for j = 1:i
-
-        beta = beta - z(:,i+1)'*p(:,j)/(d(:,j)'*p(:,j));
+if norm(full(r))> 10e-4
+    for i=1:iter
+        p(:, i) = P'*Sp*d(:, i); 
+        alpha(:, i) = r(:, i)'*d(:, i)/(d(:, i)'*p(:, i));
+        u(:, i+1) = u(:, i) + alpha(:, i).*d(:,i);
+        r(:,i+1) = r(:,i) - alpha(:, i).*p(:,i);
+        z(:,i+1) = Spinv*r(:,i+1);
+        beta = 0;
+        for j = 1:i
+            beta = beta - z(:,i+1)'*p(:,j)/(d(:,j)'*p(:,j));
+        end
+        d(:,i+1) = z(:,i+1) + beta.*d(:,i);
     end
-    d(:,i+1) = z(:,i+1) + beta.*d(:,i);
-end
 else
     ub = u(:,1);
 end
