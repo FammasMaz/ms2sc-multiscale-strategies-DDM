@@ -1,4 +1,4 @@
-function [ui, u, uif, unf] = internalNodes(truss, reshapeNodes, ub)
+function [ui, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, ub)
 
 ui = [];
 u = [];
@@ -16,3 +16,4 @@ u = [u; ub(end)];
 unf = [unf; ub(end)];
 uif = [uif; 0];
 end
+

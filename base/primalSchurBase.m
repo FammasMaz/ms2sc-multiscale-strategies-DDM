@@ -32,7 +32,7 @@ R_c = [];
 A = sparse(size(reshapeNodes,1), 2*(nbSub));
 Fd = 10e5;
 for i=1:nbSub
-    [Sps, bps, ~, ~, ~] = fem_k_dual(truss, 0);
+    [Sps, bps, Kii, Kib, fi] = fem_k(truss, sol)
     Spd = sparse(pinv(full(Sps)));
 
     rig = null(full(Sps),'r');
@@ -120,7 +120,7 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-[uii, u, uif, unf] = internalNodes(truss, reshapeNodes, Sp, bp, uord)
+[uii, u, uif, unf] = internalNodes_bak(truss, reshapeNodes, Sp, bp, uord)
 
 
 % Rebuilding Truss

@@ -29,5 +29,16 @@ Abar = A_gen(truss.reshapeNodes, truss.nbSub, Sp_gen);
 S = A*Sp*A';
 b = A*bp;
 
-ub = S\b
-u = A'*ub;
+ub = S\b;
+ub_aug = [0;ub;47];
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug)
+%Plotting
+figure
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
+hold on;
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes');
+hold off;
+plottin(truss, u)

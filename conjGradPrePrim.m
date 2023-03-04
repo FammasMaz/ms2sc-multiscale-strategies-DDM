@@ -6,7 +6,7 @@ clear all; close all; clc;
 % Variables
 run('data.m'); % Generates truss mesh
 Sp_gen = 1;
-iter = 100;
+iter = 2;
 Fd = 10e5; % Force on the end node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -22,7 +22,7 @@ Abar = A_gen(truss.reshapeNodes, truss.nbSub, 0);
 
 Atil = (A*A')\A;
 
-G = (A*R);
+G = (Atil*R);
 
 Sp = A*Sp_concat*A';
 bp = A*bp_concat;
@@ -45,7 +45,7 @@ u(:, 1) = G*Gb*bp;
 r(:, 1) = P'*bp;
 z(:, 1) = Spinv*r(:, 1);
 d(:, 1) = z(:, 1);
-if norm(full(r))> 10e-4
+if norm(full(r))< 10e-4
 
 for i=1:iter
     p(:, i) = P'*Sp*d(:, i); 
@@ -58,7 +58,7 @@ for i=1:iter
 
         beta = beta - z(:,i+1)'*p(:,j)/(d(:,j)'*p(:,j));
     end
-    d(:,i+1) = z(:,i+1) + beta.*d(:,i)
+    d(:,i+1) = z(:,i+1) + beta.*d(:,i);
 end
 else
     ub = u(:,1);

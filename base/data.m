@@ -2,12 +2,12 @@
 
 % Number of subdomains
 
-truss.nbSub = 3;
+truss.nbSub = 20;
 % Length
 L = 100/truss.nbSub;
 truss.L = L;
 % Number of nbLocal
-truss.nblocNodes = 2;
+truss.nblocNodes = 10;
 % Number of elements
 truss.nbElems = truss.nblocNodes;
 

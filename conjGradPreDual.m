@@ -48,13 +48,13 @@ alpha = sparse(size(Sp, 1), iter+1);
 
 
 u(:, 1) = -G*((G'*G)\e);
-r(:, 1) = P'*bp;
-z(:, 1) = Sdinv*r(:, 1);
+r(:, 1) = P'*(-bd - Sd*u(:,1));
+z(:, 1) = P'*Sdinv*r(:, 1);
 d(:, 1) = z(:, 1);
 if norm(full(r))> 10e-4
 
 for i=1:iter
-    p(:, i) = P'*Sp*d(:, i); 
+    p(:, i) = P'*Sd*d(:, i); 
     alpha(:, i) = r(:, i)'*d(:, i)/(d(:, i)'*p(:, i));
     u(:, i+1) = u(:, i) + alpha(:, i).*d(:,i);
     r(:,i+1) = r(:,i) - alpha(:, i).*p(:,i);

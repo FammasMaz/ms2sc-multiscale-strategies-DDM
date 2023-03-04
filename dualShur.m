@@ -48,3 +48,16 @@ alpha = sol(size(S,2)+1:end);
 lambda_c = Abar'*lambda;
 ub = Sp*(bd+lambda_c) + R_c*alpha;
 ub = ub(2:2:end); % Removing the repeating elements
+ub_aug = [0;ub;47];
+
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug)
+%Plotting
+figure
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
+hold on;
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes');
+hold off;
+plottin(truss, u)
