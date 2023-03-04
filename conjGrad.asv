@@ -60,7 +60,7 @@ end
 for i=1:length(b)
     uxyOrd(i,1) = uord(i);
 end
-ub_aug = sparse([0; ub(1:end-1)])
+ub_aug = 
 [uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
 
 
@@ -89,5 +89,5 @@ saveas(figure(1), fullfile('assets/nodal_u_primal_conjGrad.png'));
 hold off;
 
 plottin(truss, u)
-title('Displaced Beam (Primal Schur: Conjugate Gradient)')% Plot without Reordering
+title('Displaced beam')% Plot without Reordering
 saveas(figure(2), fullfile('assets/disp_beam_primal_conjGrad.png'));

@@ -58,7 +58,7 @@ nonZeroUnf = find(unf~=0);
 plot(nonZeroUif,uif(nonZeroUif), 'go')
 hold on;
 plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
-legend('Internal Nodes','Boundary Nodes', 'Location', 'southeast');
+legend('Internal Nodes','Boundary Nodes');
 xlabel('Node location on beam (m)')
 ylabel('Node displacements (m)')
 title('Nodal Displacements calculated using Primal Schur (Direct Method)')
@@ -66,5 +66,4 @@ saveas(figure(1), fullfile('assets/nodal_u_primal_direct.png'));
 hold off;
 
 plottin(truss, u)
-title('Displaced Beam (Primal Schur: Direct)')% Plot without Reordering
-saveas(figure(2), fullfile('assets/disp_beam_primal_direct.png'));
+title('Displacement without Reordering')% Plot without Reordering

@@ -5,7 +5,9 @@ function truss = mesher(nbSub, nblocNodes)% Variables
 % To generate truss with non uniform Hs (same number of elements in each
 % truss), input the nbSub ==1 and nblocNodes, before putting this function
 % in a loop
-
+% Inputs = number of subdomains `nbSubs`
+%          number of smaller elemnts per subdomain `nblocNodes`
+% Output = truss mesh struct with various fields
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of subdomains
