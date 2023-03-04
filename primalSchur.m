@@ -31,7 +31,18 @@ b = A*bp;
 
 ub = S\b;
 ub_aug = [0;ub;47];
-[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug)
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
+
+% Rebuilding Truss
+truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
+truss.nbNodes = length(truss.nodes);
+truss.nbElems = truss.nbElems*truss.nbSub;
+elems = [];
+for i = 1:truss.nbElems
+    elems = [elems; i i+1 1];
+end
+truss.elems = elems;
+
 %Plotting
 figure
 nonZeroUif = find(uif~=0);
