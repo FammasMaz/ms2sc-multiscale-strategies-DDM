@@ -5,24 +5,19 @@ u = [];
 unf = [];
 uif = [];
 
-for i=1:truss.nbSub-1
-    [~, ~, Kii, Kib, fi] = fem_k(truss, 0, 0);
+X = truss.h*truss.nblocNodes*(truss.nbSub-2:truss.nbSub-1);
+Y = full(ub(end-1:end));
+yi = interp1(X, Y, truss.L*truss.nbSub, 'linear', 'extrap');
+ub = [0;ub;yi];
+ub
+for i=1:truss.nbSub
+    [~, ~, Kii, Kib, fi] = fem_k(truss, 0);
     uil = Kii\(fi - (Kib)*ub(i:i+1));
     ui = [ui; uil];
     u = [u; ub(i); Kii\(fi - (Kib)*ub(i:i+1));];
     unf = [unf; ub(i); zeros(length(uil),1)];
     uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i+1));];
 end
-
-for i=truss.nbSub-1:truss.nbSub
-    [~, ~, Kii, Kib, fi] = fem_k(truss, 0, 1);
-    uil = Kii\(fi - (Kib)*ub(i:i));
-    ui = [ui; uil];
-    u = [u; ub(i); Kii\(fi - (Kib)*ub(i:i));];
-    unf = [unf; ub(i); zeros(length(uil),1)];
-    uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i));];
-end
-
 
 u = [u; ub(end)];
 unf = [unf; ub(end)];

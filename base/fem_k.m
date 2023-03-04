@@ -1,4 +1,4 @@
-function [Sps, bps, Kii, Kib, fi] = fem_k(truss, sol, last)
+function [Sps, bps, Kii, Kib, fi] = fem_k(truss, sol)
 %% Add Paths
 
 addpath("base/");
@@ -14,18 +14,9 @@ Ford = sparse(DoF,1);
 
 %% Local Calculations
 
-ordNodesids = truss.ordNodesids;
-if last == 1
-    pop = find(ordNodesids == truss.nblocNodes+1);
-    ordNodesids(pop) = [];
-    ins = find(ordNodesids == truss.nblocNodes);
-    ordNodesids = [ordNodesids(1:ins); truss.nblocNodes+1; ordNodesids(ins+1:end)];
-end
-ordNodesids
-
 for i=1:truss.nbElems
     ids = truss.elems(i, (1:end-1)); % Node IDs
-    idsOrd = [find(ordNodesids == ids(1)) find(ordNodesids == ids(2))]; % Ordered nodes
+    idsOrd = [find(truss.ordNodesids == ids(1)) find(truss.ordNodesids == ids(2))]; % Ordered nodes
     matPropind = truss.elems(i, end); % Material Prop
     x = truss.nodes(ids(1), :); % Node 1
     y = truss.nodes(ids(2), :); % Node 2
@@ -44,7 +35,7 @@ end
 %% Loads
 
 for n = 1:size(truss.loads, 1)
-    ordFnode = find(ordNodesids==truss.loads(n,1));
+    ordFnode = find(truss.ordNodesids==truss.loads(n,1));
     Ford(ordFnode) = truss.loads(n, 2); % X-Coordinate
 end
 
@@ -57,7 +48,7 @@ if sol==1
     bcremOrd = zeros(DoF, 1);
     for n = 1:size(truss.BC, 1)
       bcnode = truss.BC(n,1);
-      ordBCnode = find(ordNodesids==bcnode);
+      ordBCnode = find(truss.ordNodesids==bcnode);
       bcremOrd(ordBCnode) = truss.BC(n,2);
     end
     rmKord = Kord(~bcremOrd,~bcremOrd); % Removing the corresponding rows and columns of bcrem
@@ -86,22 +77,19 @@ if sol==1
     %% Plot the Deformed Formed
     plottinOrd(uxyOrd); % Plot with Reordering
 end
-iinodes = truss.iinodes;
+
 %% Decomposing Matrices
-if last == 1
-    iinodes = iinodes+1;
-end
 
 % Decompose f
-fi = Ford(1:iinodes);
-fb = Ford(iinodes+1:end);
+fi = Ford(1:truss.iinodes);
+fb = Ford(truss.iinodes+1:end);
 fb = [-10e5;10e5];
 
 % Decompose K
-Kii = Kord(1:iinodes,1:iinodes);
-Kib = Kord(1:iinodes,iinodes+1:end);
-Kbi = Kord(iinodes+1:end, 1:iinodes);
-Kbb = Kord(iinodes+1:end, iinodes+1:end);
+Kii = Kord(1:truss.iinodes,1:truss.iinodes);
+Kib = Kord(1:truss.iinodes,truss.iinodes+1:end);
+Kbi = Kord(truss.iinodes+1:end, 1:truss.iinodes);
+Kbb = Kord(truss.iinodes+1:end, truss.iinodes+1:end);
 
 %% Calculating maps
 Sps = Kbb - (Kbi*(Kii\Kib));
