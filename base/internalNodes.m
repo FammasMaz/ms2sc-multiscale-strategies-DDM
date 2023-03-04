@@ -18,8 +18,9 @@ for i=1:truss.nbSub
     unf = [unf; ub(i); zeros(length(uil),1)];
     uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i+1));];
 end
-
+u
 u = [u; ub(end)];
+u
 unf = [unf; ub(end)];
 uif = [uif; 0];
 end
