@@ -14,6 +14,7 @@ for i=1:truss.nbSub-1
     uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i+1));];
 end
 
+
 for i=truss.nbSub-1:truss.nbSub
     [~, ~, Kii, Kib, fi] = fem_k(truss, 0, 1);
     uil = Kii\(fi - (Kib)*ub(i:i));
@@ -23,7 +24,6 @@ for i=truss.nbSub-1:truss.nbSub
     uif = [uif; 0; Kii\(fi - (Kib)*ub(i:i));];
 end
 u
-
 u = [u; ub(end)];
 unf = [unf; ub(end)];
 uif = [uif; 0];
