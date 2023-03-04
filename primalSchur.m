@@ -30,8 +30,7 @@ S = A*Sp*A';
 b = A*bp;
 
 ub = S\b;
-ub_aug = [0;ub;47];
-[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub);
 
 % Rebuilding Truss
 truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
@@ -42,6 +41,7 @@ for i = 1:truss.nbElems
     elems = [elems; i i+1 1];
 end
 truss.elems = elems;
+
 
 %Plotting
 figure

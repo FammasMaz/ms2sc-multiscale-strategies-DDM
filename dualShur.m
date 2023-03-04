@@ -48,7 +48,7 @@ alpha = sol(size(S,2)+1:end);
 lambda_c = Abar'*lambda;
 ub = Sp*(bd+lambda_c) + R_c*alpha;
 ub = ub(2:2:end); % Removing the repeating elements
-ub_aug = [0;ub;47];
+ub_aug = [0;ub];
 
 [uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
 
