@@ -13,16 +13,18 @@ Sp_gen = 1;
 
 addpath('base/');
 
-run('data.m');
-truss.DOF = (truss.nbSub*(truss.nbNodes-1))+1;
+nbSub = 20;
+nbLocalElems = 10;
 
-Fd = 10e5;
+truss = mesher(nbSub, nbLocalElems);
+
+DOF = truss.DOF;
 
 % Generate A and A_bar
 A = A_gen(truss.reshapeNodes, truss.nbSub, 1);
 Abar = A_gen(truss.reshapeNodes, truss.nbSub, Sp_gen);
 
-[R_c, bp, Sp] = RS_gen(truss, Fd, Sp_gen);
+[R_c, bp, Sp] = RS_gen(truss, truss.Fd, Sp_gen);
 
 
 % Sp Assembled

@@ -5,8 +5,9 @@ clear all; close all; clc;
 addpath("base/");
 %% Initialize Dataset
 
+nbLocalElems = 10; % Number of Elements of size h
 nbSub = 1; %Full Beam
-nbLocalElems = 10; % Number of Elements
+
 truss = mesher(nbSub, nbLocalElems); % Generate the Truss
 %% Initialize Matrices
 

@@ -2,11 +2,6 @@ function truss = mesher(nbSub, nblocNodes)% Variables
 % Generates a truss mesh, based on h and H
 % To generate one truss of uniform Hs (same number of elements in each
 % truss), input the nbSub and nblocNodes
-% To generate truss with non uniform Hs (same number of elements in each
-% truss), input the nbSub ==1 and nblocNodes, before putting this function
-% in a loop
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of subdomains
 
@@ -53,8 +48,7 @@ truss.BCD = [1 1
 
 
 % Truss Loadings(Node id, Force in x, Force in y)
-truss.Fd = 10e5;
-truss.loads = [truss.nbNodes truss.Fd];
+truss.loads = [truss.nbNodes 100000];
 
 
 % Truss Materials (Modulus, Surface area)
@@ -65,12 +59,10 @@ truss.reshapeNodes = [1;];
 for i = 1:truss.nbSub
     truss.reshapeNodes = [truss.reshapeNodes; i*truss.nblocNodes+1];
 end
-% DOF of truss
-truss.DOF = (truss.nbSub*(truss.nbNodes-1))+1;
 
-
-% Internal and ordered nodes ids and numbers used later in the code
 iinodes = setdiff(truss.nodesids,truss.reshapeNodes);
 truss.iinodes = length(iinodes);
 truss.ordNodesids = [iinodes; truss.reshapeNodes];
 
+
+ke = 2.1e11*10e-6/truss.h;

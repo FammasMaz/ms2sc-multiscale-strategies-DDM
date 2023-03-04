@@ -6,8 +6,10 @@ addpath("base/");
 %% Initialize Dataset
 
 nbSub = 1; %Full Beam
-nbLocalElems = 100; % Number of Elements
-truss = mesher(1, 10); % Generate the Truss
+nbLocalElems = 10; % Number of Elements
+
+
+truss = mesher(nbSub, nbLocalElems); % Generate the Truss
 %% Initialize Matrices
 
 DoF = truss.Dim*truss.nbNodes;
@@ -103,9 +105,21 @@ for i=1:DoF
 end
 
 figure
-spy(K)
-title('Sparsity Patterns for the Matrices ')
+spy(K);
+title('Sparsity Patterns for K');
+saveas(figure(1), fullfile('assets/sparse_K.png'));
+figure
+spy(Kord);
+title('Sparsity Patterns for K_{ord}');
+saveas(figure(2), fullfile('assets/sparse_Kord.png'));
+
 %% Plot the Deformed Formed
+if nbSub == 1;
 plottin(truss,uxy)
 title('Displacement without Reordering')% Plot without Reordering
+saveas(figure(3), fullfile('assets/fem_uxy.png'));
+
 plottinOrd(truss, uxyOrd) % Plot with Reordering
+saveas(figure(4), fullfile('assets/fem_uxy.png'));
+
+end

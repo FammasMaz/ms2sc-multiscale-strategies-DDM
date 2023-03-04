@@ -1,4 +1,10 @@
 function A = A_gen(reshapeNodes, nbSub, Sp_gen)
+% Generator for assembly operator
+% !!! Only for uniform beam
+% Inputs: reshaped nodes `reshapeNodes`
+%         number of subdomains `nbSub`
+%         number of subdomains `nbSub`
+
 
 if Sp_gen ==1
     ae = [1 0; 0 1];
