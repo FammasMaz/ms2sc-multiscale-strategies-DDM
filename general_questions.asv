@@ -70,11 +70,22 @@ title('Absence of Scalability in Conjugate Gradient Method for Primal Schur');
 saveas(figure(3), fullfile('assets/iterVSnbSubConjPrimal.png'));
 
 %% 2.5 Preconditioned Conjugate Gradient
-[u, iter, Spinv, Sp] = conjGradPrePrim(nbSub, nbLocalElems, max_iter, er_max, plt);
-iter
+[u, i, Spinv, Sp] = conjGradPrePrim(nbSub, nbLocalElems, max_iter, er_max, plt);
+%% Numerically Scalable?
+nbSubiter = [20:25];
+iter = zeros(length(nbSubiter), 1);
+for i=1:length(nbSubiter)
+    [~, iter(i), ~, ~] = conjGradPrePrim(nbSubiter(i), 10, max_iter, er_max, 0);
+end
+
+figure(5)
+plot(nbSubiter, iter);
+xlabel('Number of Subdomains');
+ylabel('Iterations Taken')
+ylim([-1, 1])
+title('Absence of Scalability in Precond. Conjugate Gradient Method for Primal Schur');
+saveas(figure(3), fullfile('assets/iterVSnbSubConjPrimalPre.png'));
+
 
 %% 3.1 Dual Schur - Direct Method
 [u, u_BN, u_IN, ~, ~] = dualSchur(nbSub, nbLocalElems, plt);
-
-%% 3.2 FETTI Method
-[u, it, Spinv, Sp, Sd] = conjGradPreDual(nbSub, nbLocalElems, iter, er_max, plt)

@@ -1,14 +1,23 @@
-clear all; close all; clc;
-
+function [u, it, Spinv, Sp, Sd] = conjGradPreDual(nbSub, nbLocalElems, iter, er_max, plt)
+% Solver for Dual Schur Problem using FETTI Method
+%   [u, it, Spinv, Sp, Sd] = conjGradPreDual(nbSub, nbLocalElems, iter, er_max, plt)
+% Output :  u = total displacement vector
+%           it = number of iterations taken
+%           Spinv = Spinv found from A and Sd_concat
+%           Sp = assembled Sp
+%           Sd = assembled Sd
+% Input :   nbSub = number of subdomains
+%           nbLocalElems = number of elements in subdomain
+%           iter = maximum number of iterations
+%           er_max = max error threshold
+%           plt = to plot or not (0 or 1)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Variables
-addpath('base/');
-run('data.m'); % Generates truss mesh
-Sp_gen = 1;
-iter = 0;
-Fd = 10e5; % Force on the end node
+truss = mesher(nbSub, nbLocalElems); % Generates truss mesh
+Sp_gen = 0;
+Fd = truss.Fd; % Force on the end node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -53,7 +62,7 @@ r(:, 1) = P'*bp;
 z(:, 1) = Sdinv*r(:, 1);
 d(:, 1) = z(:, 1);
 
-
+it = 0;
 if norm(full(r)) > 10e-4
 
     for i=1:iter
@@ -68,6 +77,7 @@ if norm(full(r)) > 10e-4
             beta = beta - z(:,i+1)'*p(:,j)/(d(:,j)'*p(:,j));
         end
         d(:,i+1) = z(:,i+1) + beta.*d(:,i);
+        it = it+1;
         
     end
     ub = u(:, end);
@@ -77,4 +87,42 @@ end
 
 alpha_Fetti = Gb*(-bd-Sd*ub);
 Lambda = Abar'*ub;
-u_b = Sd_concat*(bd_concat + Lambda) + R*alpha_Fetti;
+ub = Sd_concat*(bd_concat + Lambda) + R*alpha_Fetti;
+ub = ub(2:2:end);
+%% Internal Nodes and plotting
+
+ub_aug = [0;ub];
+
+% Internal Nodes calculations
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
+
+% Reassigning some truss fields
+truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
+truss.nbNodes = length(truss.nodes);
+truss.nbElems = truss.nbElems*truss.nbSub;
+elems = [];
+for i = 1:truss.nbElems
+    elems = [elems; i i+1 1];
+end
+truss.elems = elems;
+
+
+if plt == 1
+%Plotting
+figure
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
+hold on;
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes', 'Location', 'southeast');
+xlabel('Node location on beam (m)')
+ylabel('Node displacements (m)')
+title('Nodal Displacements calculated using Dual Schur (FETTI Method)')
+saveas(figure(1), fullfile('assets/nodal_u_dual_FETTI.png'));
+hold off;
+
+plottin(truss, u)
+title('Displaced Beam (Dual Schur: Fetti Method)')% Plot without Reordering
+saveas(figure(2), fullfile('assets/disp_beam_dual_FETTI.png'));
+end

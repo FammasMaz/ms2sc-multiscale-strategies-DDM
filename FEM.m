@@ -1,19 +1,12 @@
-clear all; close all; clc;
+function [u, K, Kord, F, Ford, h] = FEM(nbSub, nbLocalElems, plt)
 
-%% Add Paths
-
-addpath("base/");
-%% Initialize Dataset
-
-nbLocalElems = 10; % Number of Elements of size h
-nbSub = 1; %Full Beam
-
-truss = mesher(nbSub, nbLocalElems); % Generate the Truss
+truss = mesher(nbSub, nbLocalElems);
+h = truss.h;% Generate the Truss
 %% Initialize Matrices
 
 DoF = truss.Dim*truss.nbNodes;
 K = sparse(DoF, DoF);
-Kord =sparse(DoF, DoF);
+Kord = sparse(DoF, DoF);
 length = zeros(truss.nbElems,1);
 u = sparse(DoF,1);
 uord = sparse(DoF,1);
@@ -102,7 +95,7 @@ end
 for i=1:DoF
     uxyOrd(i,1) = uord(i);
 end
-
+if plt == 1
 figure
 spy(K);
 title('Sparsity Patterns for K');
@@ -121,4 +114,6 @@ saveas(figure(3), fullfile('assets/fem_uxy.png'));
 plottinOrd(truss, uxyOrd) % Plot with Reordering
 saveas(figure(4), fullfile('assets/fem_uxy.png'));
 
+end
+end
 end

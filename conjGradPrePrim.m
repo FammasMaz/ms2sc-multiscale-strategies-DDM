@@ -1,13 +1,23 @@
-clear all; close all; clc;
-
+function [u, it, Spinv, Sp, Sd] = conjGradPrePrim(nbSub, nbLocalElems, iter, er_max, plt)
+% Solver for Primal Schur Problem using Preconditioned Conjugate Gradient Method
+%   [u, it, Spinv, Sp, Sd] = conjGradPrePrim(nbSub, nbLocalElems, iter, er_max, plt)
+% Output :  u = total displacement vector
+%           it = number of iterations taken
+%           Spinv = Spinv found from A and Sd_concat
+%           Sp = assembled Sp
+%           Sd = assembled Sd
+% Input :   nbSub = number of subdomains
+%           nbLocalElems = number of elements in subdomain
+%           iter = maximum number of iterations
+%           er_max = max error threshold
+%           plt = to plot or not (0 or 1)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Variables
-run('data.m'); % Generates truss mesh
+truss = mesher(nbSub, nbLocalElems); % Generates truss mesh
 Sp_gen = 1;
-iter = 3;
-Fd = 10e5; % Force on the end node
+Fd = truss.Fd; % Force on the end node
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -29,6 +39,7 @@ bp = A*bp_concat;
 
 Spinv = Atil*Sd_concat*Atil';
 
+
 Gb = ((G'*Sp*G)\G');
 P = sparse(eye(size(Sp, 1)))  - (G*Gb*Sp);
 
@@ -45,7 +56,10 @@ u(:, 1) = G*Gb*bp;
 r(:, 1) = P'*bp;
 z(:, 1) = Spinv*r(:, 1);
 d(:, 1) = z(:, 1);
-if norm(full(r))> 10e-4
+
+it = 0;
+norm(full(r))
+if norm(full(r))> er_max
     for i=1:iter
         p(:, i) = P'*Sp*d(:, i); 
         alpha(:, i) = r(:, i)'*d(:, i)/(d(:, i)'*p(:, i));
@@ -57,16 +71,47 @@ if norm(full(r))> 10e-4
             beta = beta - z(:,i+1)'*p(:,j)/(d(:,j)'*p(:,j));
         end
         d(:,i+1) = z(:,i+1) + beta.*d(:,i);
+        it = it +1;
     end
+    ub = u(:,end);
 else
     ub = u(:,1);
 end
 
+%% Internal Nodes and plotting
+
+ub_aug = [0;ub];
+
+% Internal Nodes calculations
+[uii, u, uif, unf] = internalNodes(truss, truss.reshapeNodes, ub_aug);
+
+% Reassigning some truss fields
+truss.nodes = [0:truss.h:truss.L*truss.nbSub]';
+truss.nbNodes = length(truss.nodes);
+truss.nbElems = truss.nbElems*truss.nbSub;
+elems = [];
+for i = 1:truss.nbElems
+    elems = [elems; i i+1 1];
+end
+truss.elems = elems;
 
 
+if plt == 1
+%Plotting
+figure
+nonZeroUif = find(uif~=0);
+nonZeroUnf = find(unf~=0);
+plot(nonZeroUif,uif(nonZeroUif), 'go')
+hold on;
+plot(nonZeroUnf,unf(nonZeroUnf), 'rx')
+legend('Internal Nodes','Boundary Nodes', 'Location', 'southeast');
+xlabel('Node location on beam (m)')
+ylabel('Node displacements (m)')
+title('Nodal Displacements calculated using Primal Schur (Preconditioned Conjugate Grad.)')
+saveas(figure(1), fullfile('assets/nodal_u_primal_conjGradPre.png'));
+hold off;
 
-
-
-
-
-
+plottin(truss, u)
+title('Displaced Beam (Primal Schur: Pre. Conjugate Gradient)')% Plot without Reordering
+saveas(figure(2), fullfile('assets/disp_beam_primal_conjGradPre.png'));
+end

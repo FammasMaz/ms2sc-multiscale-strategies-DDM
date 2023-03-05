@@ -1,8 +1,15 @@
-clear all; close all; clc;
-
-% Add base functions
-addpath('base/');
-
+function [u, uii, unf, S, hH] = primalSchur(nbSub, nbLocalElems, plt)
+% Solver for Primal Schur Problem using Direct Method
+%   [u, uii, unf, S, hH] = primalSchur(nbSub, nbLocalElems, plt)
+% Output :  u = total displacement vector
+%           uii = internal nodal displacment vector
+%           unf = boundary nodal displacement vector
+%           S = Sp assembled
+%           hH = h/H parameter
+% Input :   nbSub = number of subdomains
+%           nbLocalElems = number of elements in subdomain
+%           plt = to plot or not (0 or 1)
+%
 % Generating Primal or Dual? Sp_gen = 1 for Primal, 0 for Dual
 Sp_gen = 1;
 
@@ -15,10 +22,11 @@ Sp_gen = 1;
 % size of us =Sp=bp
 %%%%%%%%%%%%%%%%%%%%%
 
-nbSub = 20; % number of subdomains
-nbLocalElems = 10; % number of per domain elements
 
-truss = mesher(nbSub, nbLocalElems); % generate truss fields
+truss = mesher(nbSub, nbLocalElems);
+
+hH = truss.h/truss.L;
+% generate truss fields
 
 DOF = truss.DOF; % DOFs of the truss
 
@@ -51,6 +59,7 @@ for i = 1:truss.nbElems
 end
 truss.elems = elems;
 
+if plt == 1
 %Plotting
 figure
 nonZeroUif = find(uif~=0);
@@ -68,3 +77,4 @@ hold off;
 plottin(truss, u)
 title('Displaced Beam (Primal Schur: Direct)')% Plot without Reordering
 saveas(figure(2), fullfile('assets/disp_beam_primal_direct.png'));
+end
