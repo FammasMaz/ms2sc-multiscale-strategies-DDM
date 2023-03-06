@@ -7,6 +7,7 @@ plt = 1;
 er_max = 1e-5;
 max_iter = 100;
 
+
 %% 1.1 FEM
 nbSubFEM = 1;
 [u, K, Kord, F, Ford, ~] = FEM(nbSubFEM, nbLocalElems, plt);
@@ -71,10 +72,13 @@ saveas(figure(3), fullfile('assets/iterVSnbSubConjPrimal.png'));
 
 %% 2.5 Preconditioned Conjugate Gradient
 [u, iter, Spinv, Sp] = conjGradPrePrim(nbSub, nbLocalElems, max_iter, er_max, plt);
-iter
 
-%% 3.1 Dual Schur - Direct Method
+
+%% 2.7 Dual Schur - Direct Method
 [u, u_BN, u_IN, ~, ~] = dualSchur(nbSub, nbLocalElems, plt);
 
-%% 3.2 FETTI Method
-[u, it, Spinv, Sp, Sd] = conjGradPreDual(nbSub, nbLocalElems, iter, er_max, plt)
+%% 2.8 FETI Method
+[u, it, Spinv, Sp, Sd] = FETI(nbSub, nbLocalElems, max_iter, er_max, plt);
+
+%% 2.9 LATIN Method
+ [W_hat_concat, W_hat_concat_stack] = latin(nbSub, nbLocalElems, plt);
