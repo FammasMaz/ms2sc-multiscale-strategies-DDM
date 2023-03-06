@@ -3,10 +3,12 @@ clear all; close all; clc
 addpath('base/');
 nbLocalElems = 10;
 nbSub = 20;
-plt = 1;
+plt = 0;
 er_max = 1e-5;
 max_iter = 100;
 
+%% Exact Solution
+[x, dx] = solExact(nbSub, nbLocalElems);
 
 %% 1.1 FEM
 nbSubFEM = 1;
@@ -73,12 +75,23 @@ saveas(figure(3), fullfile('assets/iterVSnbSubConjPrimal.png'));
 %% 2.5 Preconditioned Conjugate Gradient
 [u, iter, Spinv, Sp] = conjGradPrePrim(nbSub, nbLocalElems, max_iter, er_max, plt);
 
+%% 2.6 Conditioning of Preconditioned Conjugate Gradient
+truss = mesher(nbSub, nbLocalElems);
+[~, ~, Sp] = RS_gen(truss, truss.Fd, 1);
+[~, ~, Sd] = RS_gen(truss, truss.Fd, 0);
+A = A_gen(truss.reshapeNodes, nbSub, 1);
+Abar = A_gen(truss.reshapeNodes, nbSub, 0);
+Atil = (A*A')\A;
+Sp = A*Sp*A';
+Spinv = Atil*Sd*Atil';
+kappa = cond(Spinv*Sp)
+
 
 %% 2.7 Dual Schur - Direct Method
 [u, u_BN, u_IN, ~, ~] = dualSchur(nbSub, nbLocalElems, plt);
 
-%% 2.8 FETI Method
+%% 2.8 - 2.9 FETI Method
 [u, it, Spinv, Sp, Sd] = FETI(nbSub, nbLocalElems, max_iter, er_max, plt);
 
-%% 2.9 LATIN Method
- [W_hat_concat, W_hat_concat_stack] = latin(nbSub, nbLocalElems, plt);
+%% 2.10 Monoscale LATIN Method
+[W_hat_concat, W_hat_concat_stack] = latin(nbSub, nbLocalElems, plt);
